@@ -72,3 +72,4 @@ export const eventFilterSchema = z.object({
     .max(100, 'Limit cannot exceed 100')
     .default(20)
 })
+
