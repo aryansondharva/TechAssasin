@@ -83,7 +83,7 @@ const Footer = () => {
       {/* Bottom bar */}
       <div className="border-t border-hero-foreground/10">
         <div className="container mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-hero-muted text-xs">
-          <p>© 2025 TechAssasin. All rights reserved.</p>
+          <p>© 2026 TechAssasin. All rights reserved.</p>
           <p className="flex items-center gap-1">
             Made with <Heart size={12} className="text-primary" /> by TechAssasin
           </p>
