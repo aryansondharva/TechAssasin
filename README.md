@@ -2,11 +2,64 @@
 
 A simple hackathon management website where organizers can create events and participants can register.
 
+## 🚧 Project Status
+
+**Current Phase:** Backend Development - Database & Core Setup Complete
+
+### Completed ✅
+- ✅ Project structure and dependencies setup
+- ✅ Database schema and migrations (all 7 tables)
+- ✅ Row Level Security (RLS) policies
+- ✅ Supabase Storage buckets and policies
+- ✅ TypeScript types and interfaces
+- ✅ Database schema validation tests
+
+### In Progress 🔄
+- 🔄 Supabase client configuration
+- 🔄 Validation schemas with Zod
+- 🔄 Authentication middleware
+- 🔄 API route implementations
+
+### Upcoming 📋
+- Profile management API
+- Event management API
+- Registration system
+- Email notifications
+- Real-time features
+- Frontend integration
+
 ## What is this?
 
 TechAssassin helps you run hackathons online. Think of it like an event management system specifically for coding competitions.
 
-**What you can do:**
+## Features
+
+### Current Features (Implemented)
+- ✅ **Database Schema**: Complete PostgreSQL schema with 7 tables
+  - Profiles (user information)
+  - Events (hackathon details)
+  - Registrations (event sign-ups)
+  - Announcements (community updates)
+  - Resources (learning materials)
+  - Sponsors (event supporters)
+  - Leaderboard (competition scores)
+- ✅ **Security**: Row Level Security policies on all tables
+- ✅ **Storage**: File upload buckets for avatars, event images, and logos
+- ✅ **Type Safety**: Complete TypeScript type definitions
+
+### Planned Features
+- 🔄 User authentication (email/password, OAuth)
+- 🔄 Profile management with avatar uploads
+- 🔄 Event creation and management (admin only)
+- 🔄 Event registration with capacity limits
+- 🔄 Real-time updates for participant counts
+- 🔄 Email notifications for registrations
+- 🔄 Announcements feed
+- 🔄 Resource library
+- 🔄 Sponsor showcase
+- 🔄 Live leaderboard
+
+## What you can do:
 - Create your profile with your skills
 - Browse hackathon events
 - Register for events you want to join
@@ -62,9 +115,31 @@ RESEND_API_KEY=your_resend_key_here
 ```
 
 ### Step 3: Setup Database
-1. Go to your Supabase project
+
+**✅ Database migrations are ready!**
+
+1. Go to your Supabase project dashboard
 2. Click on "SQL Editor"
-3. Copy and run each file from `backend/supabase/migrations/` folder
+3. Run the migrations in order from `backend/supabase/migrations/`:
+   - ✅ `20260207000001_create_profiles_table.sql`
+   - ✅ `20260207000002_create_events_table.sql`
+   - ✅ `20260207000003_create_registrations_table.sql`
+   - ✅ `20260207000004_create_announcements_table.sql`
+   - ✅ `20260207000005_create_resources_table.sql`
+   - ✅ `20260207000006_create_sponsors_table.sql`
+   - ✅ `20260207000007_create_leaderboard_table.sql`
+   - ✅ `20260207000008_create_profile_trigger.sql`
+   - ✅ `20260207000009_create_rls_policies_profiles.sql`
+   - ✅ `20260207000010_create_rls_policies_events.sql`
+   - ✅ `20260207000011_create_rls_policies_registrations.sql`
+   - ✅ `20260207000012_create_rls_policies_announcements.sql`
+   - ✅ `20260207000013_create_rls_policies_resources.sql`
+   - ✅ `20260207000014_create_rls_policies_sponsors.sql`
+   - ✅ `20260207000015_create_rls_policies_leaderboard.sql`
+   - ✅ `20260207000016_create_storage_buckets.sql`
+   - ✅ `20260207000017_create_storage_policies.sql`
+
+**Note:** The database schema is complete and tested!
 
 ### Step 4: Setup Frontend (Website)
 ```bash
@@ -88,18 +163,42 @@ npm run dev
 ```
 Website runs at: http://localhost:5173
 
-## Testing (Optional)
+## Testing
 
-To make sure everything works:
+### Backend Tests
+
+The backend includes comprehensive testing:
+
+**✅ Completed Tests:**
 ```bash
 cd backend
-npm test
+npm test                    # Run all tests
+npm run test:watch          # Watch mode
+npm run test:coverage       # Coverage report
 ```
 
-## Need Help?
+**Current Test Coverage:**
+- ✅ Database schema validation tests
+- ✅ Database schema structure tests
+- 🔄 Property-based tests (in progress)
+- 🔄 API endpoint tests (in progress)
 
-- Check [Backend README](./backend/README.md) for more details
-- Open an issue on GitHub if something doesn't work
+### Test Results
+All database schema tests are passing! ✅
+
+## Development Progress
+
+For detailed implementation progress, see:
+- [Requirements Document](./.kiro/specs/techassassin-backend/requirements.md)
+- [Design Document](./.kiro/specs/techassassin-backend/design.md)
+- [Task List](./.kiro/specs/techassassin-backend/tasks.md)
+
+**Completed Tasks:** 5 / 28 major tasks
+- ✅ Task 1: Project setup
+- ✅ Task 2: Database schema and migrations
+- ✅ Task 3: Row Level Security policies
+- ✅ Task 4: Storage buckets and policies
+- ✅ Task 5: TypeScript types and interfaces
 
 ## Want to Contribute?
 
