@@ -3,7 +3,7 @@ import { z } from 'zod'
 /**
  * Sponsor creation validation schema
  * Validates name, logo_url, website_url, tier, and description
- * Requirements: 9.1
+ * Requirement: 9.1
  */
 export const sponsorCreateSchema = z.object({
   name: z
@@ -32,3 +32,4 @@ export const sponsorCreateSchema = z.object({
  * Requirements: 9.1
  */
 export const sponsorUpdateSchema = sponsorCreateSchema.partial()
+
