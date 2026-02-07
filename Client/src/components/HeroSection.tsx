@@ -1,0 +1,73 @@
+import heroBg from "@/assets/hero-bg.png";
+import { CalendarDays, MapPin, Users } from "lucide-react";
+
+const HeroSection = () => {
+  return (
+    <section
+      id="hero"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+    >
+      {/* Background */}
+      <div className="absolute inset-0">
+        <img
+          src={heroBg}
+          alt="TechAssasin cyberpunk background"
+          className="w-full h-full object-cover"
+          loading="eager"
+        />
+        <div className="absolute inset-0 bg-hero/50" />
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 container mx-auto px-4 text-center py-32">
+        <div className="inline-block mb-6 px-4 py-1.5 rounded-full border border-primary/40 bg-primary/10">
+          <span className="text-primary text-sm font-semibold tracking-wide uppercase">
+            Hackathon Community
+          </span>
+        </div>
+
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold text-hero-foreground mb-4 tracking-tight leading-tight">
+          Tech<span className="text-primary">Assasin</span>
+        </h1>
+
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <span className="text-primary font-heading font-semibold text-lg md:text-2xl">
+            Dec 18, 2025 — Jan 18, 2026
+          </span>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-center gap-6 mb-10 text-hero-muted text-sm">
+          <div className="flex items-center gap-2">
+            <MapPin size={16} className="text-primary" />
+            <span>Hybrid Event</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <CalendarDays size={16} className="text-primary" />
+            <span>30 Days</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Users size={16} className="text-primary" />
+            <span>500+ Participants</span>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <a
+            href="#prizes"
+            className="bg-primary text-primary-foreground px-8 py-3.5 rounded-md font-semibold text-base hover:bg-primary/90 transition-colors shadow-lg shadow-primary/25"
+          >
+            Register Now
+          </a>
+          <a
+            href="#tracks"
+            className="border border-hero-muted/30 text-hero-foreground px-8 py-3.5 rounded-md font-semibold text-base hover:bg-hero-foreground/5 transition-colors"
+          >
+            View Tracks
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default HeroSection;
