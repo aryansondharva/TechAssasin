@@ -85,3 +85,4 @@ export async function requireAdmin(userId: string): Promise<void> {
     throw new AuthorizationError('Admin access required')
   }
 }
+
