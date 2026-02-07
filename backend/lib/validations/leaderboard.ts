@@ -3,7 +3,7 @@ import { z } from 'zod'
 /**
  * Leaderboard update validation schema
  * Validates event_id, user_id, and score
- * Requirements: 10.1
+ * Requirements: 10.1.2
  */
 export const leaderboardUpdateSchema = z.object({
   event_id: z
@@ -17,3 +17,4 @@ export const leaderboardUpdateSchema = z.object({
     .int('Score must be an integer')
     .nonnegative('Score must be non-negative')
 })
+
