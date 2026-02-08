@@ -5,11 +5,12 @@ import { requireAuth, requireAdmin } from '@/lib/middleware/auth'
 import { eventCreateSchema } from '@/lib/validations/event'
 import { handleApiError, ValidationError } from '@/lib/errors'
 import { validatePaginationParams, getPaginationMetadata } from '@/lib/utils/pagination'
+import { getCached, cache, CacheKeys, CacheTTL } from '@/lib/utils/cache'
 
 /**
  * GET /api/events
  * List events with optional status filter and pagination
- * Requirements: 4.6, 4.7, 4.8, 13.3
+ * Requirements: 4.6, 4.7, 4.8, 13.3, 13.4
  */
 export async function GET(request: NextRequest) {
   try {
@@ -26,18 +27,28 @@ export async function GET(request: NextRequest) {
       throw new ValidationError('Invalid status filter. Must be live, upcoming, or past')
     }
     
-    const { events, total } = await listEvents({
-      status: status || undefined,
-      page,
-      limit
-    })
+    // Use cache for events list
+    const cacheKey = CacheKeys.events(status || undefined, page, limit)
+    const result = await getCached(
+      cacheKey,
+      async () => {
+        const { events, total } = await listEvents({
+          status: status || undefined,
+          page,
+          limit
+        })
+        
+        const pagination = getPaginationMetadata(total, page, limit)
+        
+        return {
+          data: events,
+          pagination
+        }
+      },
+      CacheTTL.events
+    )
     
-    const pagination = getPaginationMetadata(total, page, limit)
-    
-    return NextResponse.json({
-      data: events,
-      pagination
-    })
+    return NextResponse.json(result)
   } catch (error) {
     return handleApiError(error)
   }
@@ -82,6 +93,9 @@ export async function POST(request: NextRequest) {
     if (error) {
       throw new Error(`Failed to create event: ${error.message}`)
     }
+    
+    // Invalidate events cache
+    cache.invalidatePattern('events:')
     
     return NextResponse.json(event, { status: 201 })
   } catch (error) {

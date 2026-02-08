@@ -3,36 +3,44 @@ import { createClient } from '@/lib/supabase/server'
 import { requireAuth, requireAdmin, AuthenticationError, AuthorizationError } from '@/lib/middleware/auth'
 import { sponsorCreateSchema } from '@/lib/validations/sponsor'
 import { ZodError } from 'zod'
+import { getCached, cache, CacheKeys, CacheTTL } from '@/lib/utils/cache'
 
 /**
  * GET /api/sponsors
  * List all sponsors (public access, no auth required)
  * Orders by tier (gold, silver, bronze)
- * Requirements: 9.5, 9.6
+ * Requirements: 9.5, 9.6, 13.4
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient()
+    // Use cache for sponsors list (rarely changes)
+    const sponsors = await getCached(
+      CacheKeys.sponsors(),
+      async () => {
+        const supabase = await createClient()
+        
+        // Define tier order for sorting
+        const tierOrder = { gold: 1, silver: 2, bronze: 3 }
+        
+        // Fetch all sponsors
+        const { data: sponsors, error } = await supabase
+          .from('sponsors')
+          .select('*')
+          .order('created_at', { ascending: false })
+        
+        if (error) {
+          throw new Error(`Failed to fetch sponsors: ${error.message}`)
+        }
+        
+        // Sort by tier (gold, silver, bronze) in memory
+        return (sponsors || []).sort((a: any, b: any) => {
+          return tierOrder[a.tier as keyof typeof tierOrder] - tierOrder[b.tier as keyof typeof tierOrder]
+        })
+      },
+      CacheTTL.sponsors
+    )
     
-    // Define tier order for sorting
-    const tierOrder = { gold: 1, silver: 2, bronze: 3 }
-    
-    // Fetch all sponsors
-    const { data: sponsors, error } = await supabase
-      .from('sponsors')
-      .select('*')
-      .order('created_at', { ascending: false })
-    
-    if (error) {
-      throw new Error(`Failed to fetch sponsors: ${error.message}`)
-    }
-    
-    // Sort by tier (gold, silver, bronze) in memory
-    const sortedSponsors = (sponsors || []).sort((a: any, b: any) => {
-      return tierOrder[a.tier as keyof typeof tierOrder] - tierOrder[b.tier as keyof typeof tierOrder]
-    })
-    
-    return NextResponse.json({ data: sortedSponsors })
+    return NextResponse.json({ data: sponsors })
   } catch (error) {
     console.error('GET /api/sponsors error:', error)
     return NextResponse.json(
@@ -76,6 +84,9 @@ export async function POST(request: NextRequest) {
     if (error) {
       throw new Error(`Failed to create sponsor: ${error.message}`)
     }
+    
+    // Invalidate sponsors cache
+    cache.invalidate(CacheKeys.sponsors())
     
     return NextResponse.json(sponsor, { status: 201 })
   } catch (error) {

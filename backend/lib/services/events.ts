@@ -63,9 +63,9 @@ export async function listEvents(filters: {
   const offset = (page - 1) * limit
   
   // Fetch all events (we'll filter by status in memory since it's calculated)
-  const { data: events, error, count } = await supabase
+  const { data: events, error } = await supabase
     .from('events')
-    .select('*', { count: 'exact' })
+    .select('*')
     .order('start_date', { ascending: false })
   
   if (error) {
@@ -76,19 +76,35 @@ export async function listEvents(filters: {
     return { events: [], total: 0 }
   }
   
-  // Calculate status for each event and filter if needed
-  let eventsWithStatus: EventWithParticipants[] = await Promise.all(
-    events.map(async (event: Event) => {
-      const status = calculateEventStatus(event)
-      const participant_count = await getParticipantCount(event.id)
-      
-      return {
-        ...event,
-        status,
-        participant_count
-      }
-    })
-  )
+  // Get participant counts for all events in a single query (optimize N+1)
+  const eventIds = events.map((e: Event) => e.id)
+  const { data: registrationCounts, error: countError } = await supabase
+    .from('registrations')
+    .select('event_id')
+    .in('event_id', eventIds)
+    .eq('status', 'confirmed')
+  
+  if (countError) {
+    throw new Error(`Failed to get participant counts: ${countError.message}`)
+  }
+  
+  // Create a map of event_id to participant count
+  const participantCountMap = new Map<string, number>()
+  registrationCounts?.forEach((reg: { event_id: string }) => {
+    participantCountMap.set(reg.event_id, (participantCountMap.get(reg.event_id) || 0) + 1)
+  })
+  
+  // Calculate status for each event and add participant count
+  let eventsWithStatus: EventWithParticipants[] = events.map((event: Event) => {
+    const status = calculateEventStatus(event)
+    const participant_count = participantCountMap.get(event.id) || 0
+    
+    return {
+      ...event,
+      status,
+      participant_count
+    }
+  })
   
   // Filter by status if provided
   if (filters.status) {

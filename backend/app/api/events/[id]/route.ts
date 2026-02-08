@@ -5,6 +5,7 @@ import { requireAuth, requireAdmin } from '@/lib/middleware/auth'
 import { eventUpdateSchema } from '@/lib/validations/event'
 import { handleApiError, NotFoundError } from '@/lib/errors'
 import { deleteEventImages } from '@/lib/storage/cleanup'
+import { cache } from '@/lib/utils/cache'
 
 /**
  * GET /api/events/[id]
@@ -71,6 +72,10 @@ export async function PATCH(
       throw new Error(`Failed to update event: ${error.message}`)
     }
     
+    // Invalidate events cache
+    cache.invalidatePattern('events:')
+    cache.invalidatePattern(`event:${id}`)
+    
     return NextResponse.json(event)
   } catch (error) {
     return handleApiError(error)
@@ -120,6 +125,10 @@ export async function DELETE(
       console.error(`Failed to clean up event images for event ${id}:`, cleanupError)
       // Continue - event deletion was successful
     }
+    
+    // Invalidate events cache
+    cache.invalidatePattern('events:')
+    cache.invalidatePattern(`event:${id}`)
     
     return NextResponse.json(
       { message: 'Event deleted successfully' },

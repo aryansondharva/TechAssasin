@@ -47,20 +47,19 @@ export async function recalculateRanks(eventId: string): Promise<void> {
     
     return {
       id: entry.id,
-      rank: currentRank
+      rank: currentRank,
+      updated_at: new Date().toISOString()
     }
   })
   
-  // Update all ranks in the database
-  for (const update of updates) {
-    const { error: updateError } = await supabase
-      .from('leaderboard')
-      .update({ rank: update.rank })
-      .eq('id', update.id)
-    
-    if (updateError) {
-      throw new Error(`Failed to update rank for entry ${update.id}: ${updateError.message}`)
-    }
+  // Batch update all ranks in the database (more efficient than individual updates)
+  // Note: Supabase doesn't support batch updates directly, but we can use upsert
+  const { error: updateError } = await supabase
+    .from('leaderboard')
+    .upsert(updates, { onConflict: 'id' })
+  
+  if (updateError) {
+    throw new Error(`Failed to update ranks: ${updateError.message}`)
   }
 }
 

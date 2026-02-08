@@ -4,6 +4,7 @@ import { requireAuth, requireAdmin, AuthenticationError, AuthorizationError } fr
 import { sponsorUpdateSchema } from '@/lib/validations/sponsor'
 import { deleteSponsorLogo } from '@/lib/storage/cleanup'
 import { ZodError } from 'zod'
+import { cache, CacheKeys } from '@/lib/utils/cache'
 
 /**
  * PATCH /api/sponsors/[id]
@@ -45,6 +46,9 @@ export async function PATCH(
       }
       throw new Error(`Failed to update sponsor: ${error.message}`)
     }
+    
+    // Invalidate sponsors cache
+    cache.invalidate(CacheKeys.sponsors())
     
     return NextResponse.json(sponsor)
   } catch (error) {
@@ -120,6 +124,9 @@ export async function DELETE(
       console.error(`Failed to clean up sponsor logo for sponsor ${id}:`, cleanupError)
       // Continue - sponsor deletion was successful
     }
+    
+    // Invalidate sponsors cache
+    cache.invalidate(CacheKeys.sponsors())
     
     return NextResponse.json({ message: 'Sponsor deleted successfully' })
   } catch (error) {
