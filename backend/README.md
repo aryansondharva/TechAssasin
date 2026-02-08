@@ -206,10 +206,70 @@ Full API documentation will be available in `API.md` once implementation is comp
 4. **Testing**: Both unit tests and property-based tests
 5. **Security**: Row Level Security enforced at database level
 
+## Deployment
+
+### Quick Deployment to Vercel
+
+```bash
+# Install Vercel CLI
+npm install -g vercel
+
+# Login
+vercel login
+
+# Deploy
+cd backend
+vercel --prod
+```
+
+See [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md) for quick start guide.
+
+### Comprehensive Deployment Guide
+
+For detailed production deployment instructions including:
+- Supabase production setup
+- Resend configuration
+- Environment variables
+- Database migrations
+- CORS configuration
+- Post-deployment verification
+- Monitoring and maintenance
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md)
+
+### Database Migrations
+
+To run database migrations on your Supabase instance:
+
+```bash
+# Using Supabase CLI (recommended)
+supabase link --project-ref your-project-ref
+supabase db push
+
+# Or manually via SQL Editor
+# See DATABASE_MIGRATION_GUIDE.md for detailed instructions
+```
+
+See [DATABASE_MIGRATION_GUIDE.md](./DATABASE_MIGRATION_GUIDE.md) for complete migration guide.
+
+### Production Checklist
+
+Before deploying to production, complete the [PRODUCTION_CHECKLIST.md](./PRODUCTION_CHECKLIST.md) to ensure:
+- All environment variables configured
+- Database migrations applied
+- Security policies enabled
+- Monitoring configured
+- Backup procedures in place
+
 ## Documentation
 
-- [Setup Guide](./SETUP.md) - Detailed setup instructions
-- [Database Migrations](./supabase/migrations/README.md) - Migration documentation
+- [Setup Guide](./SETUP.md) - Detailed setup instructions for local development
+- [API Documentation](./API.md) - Complete API reference
+- [Deployment Guide](./DEPLOYMENT.md) - Comprehensive production deployment guide
+- [Vercel Quick Start](./VERCEL_DEPLOYMENT.md) - Quick reference for Vercel deployment
+- [Database Migration Guide](./DATABASE_MIGRATION_GUIDE.md) - Database migration procedures
+- [Production Checklist](./PRODUCTION_CHECKLIST.md) - Pre-deployment verification checklist
+- [Database Migrations](./supabase/migrations/README.md) - Migration file documentation
 - [RLS Policies](./supabase/migrations/RLS_POLICIES.md) - Security policy details
 - [Database Tests](./lib/utils/DATABASE_TESTS_README.md) - Test documentation
 
