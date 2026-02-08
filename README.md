@@ -1,32 +1,74 @@
 # TechAssassin Community Platform
 
-A simple hackathon management website where organizers can create events and participants can register.
+A comprehensive hackathon management platform where organizers can create events and participants can register. Features real-time updates, user authentication, file uploads, and more.
+
+## 🚀 Quick Start
+
+Get started in 5 minutes! See [QUICK_START.md](./QUICK_START.md) for detailed instructions.
+
+```bash
+# 1. Setup Backend
+cd backend
+npm install
+cp .env.example .env.local
+# Edit .env.local with your credentials
+npm run dev  # Runs on http://localhost:3000
+
+# 2. Setup Frontend (new terminal)
+cd Client
+npm install
+cp .env.example .env.local
+# Edit .env.local with your credentials
+npm run dev  # Runs on http://localhost:8080
+```
+
+## 📚 Documentation
+
+### Getting Started
+- **[Quick Start Guide](./QUICK_START.md)** - Get up and running in 5 minutes
+- **[Frontend-Backend Integration](./FRONTEND_BACKEND_INTEGRATION.md)** - Complete integration guide
+
+### Backend Documentation
+- [Setup Guide](./backend/SETUP.md) - Detailed backend setup
+- [API Documentation](./backend/API.md) - Complete API reference
+- [Deployment Guide](./backend/DEPLOYMENT.md) - Production deployment
+- [Database Migrations](./backend/DATABASE_MIGRATION_GUIDE.md) - Migration procedures
+
+### Frontend Documentation
+- [Frontend README](./Client/README.md) - Frontend-specific documentation
 
 ## 🚧 Project Status
 
-**Current Phase:** Backend Development - Database & Core Setup Complete
+**Current Phase:** ✅ Backend Complete - Frontend Integration Ready
 
 ### Completed ✅
-- ✅ Project structure and dependencies setup
-- ✅ Database schema and migrations (all 7 tables)
+- ✅ Complete backend API with all endpoints
+- ✅ Database schema and migrations (7 tables)
 - ✅ Row Level Security (RLS) policies
 - ✅ Supabase Storage buckets and policies
+- ✅ Authentication system (email/password, OAuth)
+- ✅ Profile management with avatar uploads
+- ✅ Event management (CRUD operations)
+- ✅ Registration system with capacity limits
+- ✅ Announcements, Resources, Sponsors, Leaderboard
+- ✅ Email notifications (Resend)
+- ✅ Real-time subscriptions (Supabase)
+- ✅ File upload handling
+- ✅ Error handling and validation
+- ✅ Rate limiting
 - ✅ TypeScript types and interfaces
-- ✅ Database schema validation tests
+- ✅ Comprehensive testing
+- ✅ **Frontend-Backend Integration Layer**
+- ✅ **API Client and Service Layer**
+- ✅ **Deployment Documentation**
 
-### In Progress 🔄
-- 🔄 Supabase client configuration
-- 🔄 Validation schemas with Zod
-- 🔄 Authentication middleware
-- 🔄 API route implementations
-
-### Upcoming 📋
-- Profile management API
-- Event management API
-- Registration system
-- Email notifications
-- Real-time features
-- Frontend integration
+### Ready for Development 🎯
+- Frontend UI components
+- User authentication flows
+- Event listing and details pages
+- Registration forms
+- Admin dashboard
+- Real-time updates integration
 
 ## What is this?
 
