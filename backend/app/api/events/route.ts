@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { requireAuth, requireAdmin } from '@/lib/middleware/auth'
 import { eventCreateSchema } from '@/lib/validations/event'
 import { handleApiError, ValidationError } from '@/lib/errors'
+import { validatePaginationParams, getPaginationMetadata } from '@/lib/utils/pagination'
 
 /**
  * GET /api/events
@@ -18,9 +19,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20')
     
     // Validate pagination parameters
-    if (page < 1 || limit < 1 || limit > 100) {
-      throw new ValidationError('Invalid pagination parameters')
-    }
+    validatePaginationParams(page, limit, 100)
     
     // Validate status if provided
     if (status && !['live', 'upcoming', 'past'].includes(status)) {
@@ -33,16 +32,11 @@ export async function GET(request: NextRequest) {
       limit
     })
     
-    const totalPages = Math.ceil(total / limit)
+    const pagination = getPaginationMetadata(total, page, limit)
     
     return NextResponse.json({
       data: events,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages
-      }
+      pagination
     })
   } catch (error) {
     return handleApiError(error)

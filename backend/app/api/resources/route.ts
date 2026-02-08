@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { requireAuth, requireAdmin, AuthenticationError, AuthorizationError } from '@/lib/middleware/auth'
 import { resourceCreateSchema } from '@/lib/validations/resource'
+import { validatePaginationParams, getPaginationMetadata, paginate } from '@/lib/utils/pagination'
 import { ZodError } from 'zod'
 
 /**
@@ -22,17 +23,9 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category')
     
     // Validate pagination parameters
-    if (page < 1 || limit < 1 || limit > 50) {
-      return NextResponse.json(
-        { error: 'Invalid pagination parameters. Page must be >= 1, limit must be between 1 and 50' },
-        { status: 400 }
-      )
-    }
+    validatePaginationParams(page, limit, 50)
     
     const supabase = await createClient()
-    
-    // Calculate offset for pagination
-    const offset = (page - 1) * limit
     
     // Build query with optional category filter
     let countQuery = supabase
@@ -43,7 +36,6 @@ export async function GET(request: NextRequest) {
       .from('resources')
       .select('*')
       .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1)
     
     // Apply category filter if provided
     if (category) {
@@ -58,24 +50,19 @@ export async function GET(request: NextRequest) {
       throw new Error(`Failed to count resources: ${countError.message}`)
     }
     
-    // Fetch resources
-    const { data: resources, error } = await dataQuery
+    // Fetch resources with pagination
+    const { data: resources, error } = await paginate(dataQuery, page, limit)
     
     if (error) {
       throw new Error(`Failed to fetch resources: ${error.message}`)
     }
     
     const total = count || 0
-    const totalPages = Math.ceil(total / limit)
+    const pagination = getPaginationMetadata(total, page, limit)
     
     return NextResponse.json({
       data: resources,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages
-      }
+      pagination
     })
   } catch (error) {
     if (error instanceof AuthenticationError) {

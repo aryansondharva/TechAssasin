@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { requireAuth, requireAdmin } from '@/lib/middleware/auth'
 import { announcementCreateSchema } from '@/lib/validations/announcement'
 import { handleApiError, ValidationError } from '@/lib/errors'
+import { validatePaginationParams, getPaginationMetadata, paginate } from '@/lib/utils/pagination'
 
 /**
  * GET /api/announcements
@@ -21,14 +22,9 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20')
     
     // Validate pagination parameters
-    if (page < 1 || limit < 1 || limit > 50) {
-      throw new ValidationError('Invalid pagination parameters. Page must be >= 1, limit must be between 1 and 50')
-    }
+    validatePaginationParams(page, limit, 50)
     
     const supabase = await createClient()
-    
-    // Calculate offset for pagination
-    const offset = (page - 1) * limit
     
     // Get total count
     const { count, error: countError } = await supabase
@@ -40,7 +36,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Fetch announcements with author profile information
-    const { data: announcements, error } = await supabase
+    const query = supabase
       .from('announcements')
       .select(`
         id,
@@ -54,23 +50,19 @@ export async function GET(request: NextRequest) {
         )
       `)
       .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1)
+    
+    const { data: announcements, error } = await paginate(query, page, limit)
     
     if (error) {
       throw new Error(`Failed to fetch announcements: ${error.message}`)
     }
     
     const total = count || 0
-    const totalPages = Math.ceil(total / limit)
+    const pagination = getPaginationMetadata(total, page, limit)
     
     return NextResponse.json({
       data: announcements,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages
-      }
+      pagination
     })
   } catch (error) {
     return handleApiError(error)
