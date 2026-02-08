@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { requireAuth, requireAdmin } from '@/lib/middleware/auth'
 import { eventUpdateSchema } from '@/lib/validations/event'
 import { handleApiError, NotFoundError } from '@/lib/errors'
+import { deleteEventImages } from '@/lib/storage/cleanup'
 
 /**
  * GET /api/events/[id]
@@ -79,7 +80,7 @@ export async function PATCH(
 /**
  * DELETE /api/events/[id]
  * Delete an event (admin only, cascade deletes registrations)
- * Requirements: 4.4, 4.5
+ * Requirements: 4.4, 4.5, 15.7
  */
 export async function DELETE(
   request: NextRequest,
@@ -109,6 +110,15 @@ export async function DELETE(
     
     if (error) {
       throw new Error(`Failed to delete event: ${error.message}`)
+    }
+    
+    // Clean up event images from storage
+    // Handle cleanup errors gracefully (log but don't fail deletion)
+    try {
+      await deleteEventImages(id)
+    } catch (cleanupError) {
+      console.error(`Failed to clean up event images for event ${id}:`, cleanupError)
+      // Continue - event deletion was successful
     }
     
     return NextResponse.json(

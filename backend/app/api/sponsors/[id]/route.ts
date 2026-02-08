@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { requireAuth, requireAdmin, AuthenticationError, AuthorizationError } from '@/lib/middleware/auth'
 import { sponsorUpdateSchema } from '@/lib/validations/sponsor'
+import { deleteSponsorLogo } from '@/lib/storage/cleanup'
 import { ZodError } from 'zod'
 
 /**
@@ -79,7 +80,7 @@ export async function PATCH(
 /**
  * DELETE /api/sponsors/[id]
  * Delete a sponsor (admin only)
- * Requirements: 9.4
+ * Requirements: 9.4, 15.7
  */
 export async function DELETE(
   request: NextRequest,
@@ -109,6 +110,15 @@ export async function DELETE(
         )
       }
       throw new Error(`Failed to delete sponsor: ${error.message}`)
+    }
+    
+    // Clean up sponsor logo from storage
+    // Handle cleanup errors gracefully (log but don't fail deletion)
+    try {
+      await deleteSponsorLogo(id)
+    } catch (cleanupError) {
+      console.error(`Failed to clean up sponsor logo for sponsor ${id}:`, cleanupError)
+      // Continue - sponsor deletion was successful
     }
     
     return NextResponse.json({ message: 'Sponsor deleted successfully' })

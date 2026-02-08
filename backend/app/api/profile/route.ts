@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { requireAuth } from '@/lib/middleware/auth'
 import { profileUpdateSchema } from '@/lib/validations/profile'
 import { handleApiError, NotFoundError, ConflictError, AuthorizationError } from '@/lib/errors'
+import { deleteAvatar } from '@/lib/storage/cleanup'
 import type { Profile } from '@/types/database'
 
 /**
@@ -93,6 +94,48 @@ export async function PATCH(request: Request) {
     }
     
     return NextResponse.json(updatedProfile as Profile)
+  } catch (error) {
+    return handleApiError(error)
+  }
+}
+
+/**
+ * DELETE /api/profile
+ * Delete current user's profile
+ * Cleans up avatar from storage
+ * Requirements: 15.7
+ */
+export async function DELETE() {
+  try {
+    // Verify authentication
+    const user = await requireAuth()
+    
+    // Get Supabase client
+    const supabase = await createClient()
+    
+    // Delete profile from database
+    const { error } = await supabase
+      .from('profiles')
+      .delete()
+      .eq('id', user.id)
+    
+    if (error) {
+      throw new Error(`Failed to delete profile: ${error.message}`)
+    }
+    
+    // Clean up avatar from storage
+    // Handle cleanup errors gracefully (log but don't fail deletion)
+    try {
+      await deleteAvatar(user.id)
+    } catch (cleanupError) {
+      console.error(`Failed to clean up avatar for user ${user.id}:`, cleanupError)
+      // Continue - profile deletion was successful
+    }
+    
+    return NextResponse.json(
+      { message: 'Profile deleted successfully' },
+      { status: 200 }
+    )
   } catch (error) {
     return handleApiError(error)
   }
