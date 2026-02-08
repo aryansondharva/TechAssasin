@@ -4,12 +4,13 @@ import { registrationCreateSchema } from '@/lib/validations/registration'
 import { createRegistration } from '@/lib/services/registrations'
 import { createClient } from '@/lib/supabase/server'
 import { checkRateLimit } from '@/lib/utils/rate-limit'
+import { sendRegistrationConfirmation } from '@/lib/email/resend'
 import { ZodError } from 'zod'
 
 /**
  * POST /api/registrations
  * Register for an event
- * Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 12.8
+ * Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 11.1, 11.4, 12.8
  */
 export async function POST(request: NextRequest) {
   try {
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient()
     const { data: event, error: eventError } = await supabase
       .from('events')
-      .select('registration_open')
+      .select('*')
       .eq('id', validatedData.event_id)
       .single()
     
@@ -60,6 +61,26 @@ export async function POST(request: NextRequest) {
     
     // Create registration with capacity check
     const registration = await createRegistration(user.id, validatedData)
+    
+    // Send registration confirmation email (non-blocking)
+    // Requirements: 5.7, 11.1, 11.4
+    if (user.email) {
+      sendRegistrationConfirmation(
+        user.email,
+        event.title,
+        {
+          title: event.title,
+          description: event.description,
+          start_date: event.start_date,
+          end_date: event.end_date,
+          location: event.location,
+          status: registration.status as 'confirmed' | 'waitlisted'
+        }
+      ).catch(error => {
+        // Log email error but don't fail the registration
+        console.error('Failed to send registration confirmation email:', error)
+      })
+    }
     
     return NextResponse.json(registration, { status: 201 })
   } catch (error) {
