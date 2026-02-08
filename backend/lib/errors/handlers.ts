@@ -138,7 +138,7 @@ export function formatErrorResponse(error: unknown): ApiErrorResponse {
   if (error instanceof ZodError) {
     return {
       error: 'Validation failed',
-      details: error.errors,
+      details: error.issues,
       statusCode: 400
     }
   }

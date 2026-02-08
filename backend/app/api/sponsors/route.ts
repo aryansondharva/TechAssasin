@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Sort by tier (gold, silver, bronze) in memory
-    const sortedSponsors = (sponsors || []).sort((a, b) => {
+    const sortedSponsors = (sponsors || []).sort((a: any, b: any) => {
       return tierOrder[a.tier as keyof typeof tierOrder] - tierOrder[b.tier as keyof typeof tierOrder]
     })
     
