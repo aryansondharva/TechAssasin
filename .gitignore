@@ -1,6 +1,10 @@
 # Kiro files
 .kiro/
 
+# Markdown files (ignore all .md files except README.md)
+*.md
+!README.md
+
 # Dependencies
 node_modules/
 
