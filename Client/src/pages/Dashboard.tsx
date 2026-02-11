@@ -190,7 +190,7 @@ export default function Dashboard() {
           {/* Edit Profile Button */}
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Edit Profile</h2>
-            <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/edit-profile')}>
+            <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-shadow">
               <CardContent className="p-8">
                 <div className="flex items-center justify-between">
                   <div>
@@ -202,7 +202,10 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <div className="mt-4 text-center">
-                  <Button className="bg-green-600 hover:bg-green-700 text-white">
+                  <Button 
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    onClick={() => navigate('/edit-profile')}
+                  >
                     Edit Your Profile
                   </Button>
                 </div>

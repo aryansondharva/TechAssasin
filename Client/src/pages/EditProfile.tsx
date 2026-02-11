@@ -243,52 +243,57 @@ const EditProfile = () => {
                           className="w-full"
                         />
                       </div>
-                    </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
 
-                    {/* Skills Section */}
-                    <div>
-                      <Label htmlFor="skills">Skills</Label>
-                      <div className="space-y-3">
-                        <div className="flex flex-wrap gap-2 mb-3">
-                          {formData.skills.map((skill, index) => (
-                            <span key={index} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm flex items-center">
-                              {skill}
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveSkill(index)}
-                                className="ml-2 text-red-500 hover:text-red-700"
-                              >
-                                <X className="h-3 w-3" />
-                              </button>
-                            </span>
-                          ))}
-                        </div>
-                        <div className="flex gap-2">
-                          <Input
-                            type="text"
-                            value={newSkill}
-                            onChange={(e) => setNewSkill(e.target.value)}
-                            placeholder="Add a skill and press Enter"
-                            className="flex-1"
-                            onKeyPress={(e) => {
-                              if (e.key === 'Enter' && newSkill.trim()) {
-                                handleAddSkill();
-                              }
-                            }}
-                          />
-                          <Button 
-                            type="button"
-                            onClick={handleAddSkill}
-                            className="bg-blue-600 hover:bg-blue-700 text-white"
-                          >
-                            Add
-                          </Button>
-                        </div>
+              {/* Skills Section */}
+              <div className="mt-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Skills</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="space-y-3">
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {formData.skills.map((skill, index) => (
+                          <span key={index} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm flex items-center">
+                            {skill}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveSkill(index)}
+                              className="ml-2 text-red-500 hover:text-red-700"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <Input
+                          type="text"
+                          value={newSkill}
+                          onChange={(e) => setNewSkill(e.target.value)}
+                          placeholder="Add a skill and press Enter"
+                          className="flex-1"
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter' && newSkill.trim()) {
+                              handleAddSkill();
+                            }
+                          }}
+                        />
+                        <Button 
+                          type="button"
+                          onClick={handleAddSkill}
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                        >
+                          Add
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-                </div>
               </div>
             </div>
 
