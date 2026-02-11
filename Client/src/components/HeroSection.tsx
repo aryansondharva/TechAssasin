@@ -33,7 +33,7 @@ const HeroSection = () => {
 
         <div className="flex items-center justify-center gap-2 mb-6">
           <span className="text-primary font-heading font-semibold text-lg md:text-2xl">
-            Dec 18, 2025 — Jan 18, 2026
+            Feb 21, 2025
           </span>
         </div>
 
@@ -44,11 +44,11 @@ const HeroSection = () => {
           </div>
           <div className="flex items-center gap-2">
             <CalendarDays size={16} className="text-primary" />
-            <span>30 Days</span>
+            <span>7 Hours</span>
           </div>
           <div className="flex items-center gap-2">
             <Users size={16} className="text-primary" />
-            <span>500+ Participants</span>
+            <span>200+ Participants</span>
           </div>
         </div>
 

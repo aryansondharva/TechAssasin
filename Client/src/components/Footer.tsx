@@ -11,7 +11,7 @@ const Footer = () => {
               Join the Online Round
             </h3>
             <p className="text-primary-foreground/80">
-              Register before Dec 15, 2025 to secure your spot.
+              Register before Feb 21, 2025 to secure your spot.
             </p>
           </div>
           <a

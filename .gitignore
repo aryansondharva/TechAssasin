@@ -4,6 +4,7 @@
 # Markdown files (ignore all .md files except README.md)
 *.md
 !README.md
+.INTEGRATION_SUMMARY.md
 
 # Dependencies
 node_modules/

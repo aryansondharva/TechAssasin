@@ -19,12 +19,40 @@ export default function Events() {
     fetchEvents();
   }, [filter]);
 
+  // Add Luma event data
+  const lumaEvent: EventWithParticipants = {
+    id: 'luma-code4cause-2025',
+    title: 'Code4Cause: Social Impact Hackathon',
+    description: 'Ready to Ignite Change? Step up and code for a cause! The Social Impact Hackathon isn\'t just an event; it\'s a movement. In this adrenaline-fueled 7-hour sprint, we\'re bridging the gap between technology and humanity. Whether you\'re a coding wizard, a design visionary, or a strategic thinker, your skills have the power to solve real-world crises.',
+    start_date: '2025-02-21T09:00:00+05:30',
+    end_date: '2025-02-21T16:15:00+05:30',
+    location: 'Computer Seminar Hall | GIDC Degree Engineering College, Abrama, Gujarat',
+    max_participants: 200,
+    participant_count: 45,
+    status: 'live',
+    image_urls: ['/luma.png'],
+    registration_open: true,
+    prizes: {
+      '1st': '5K INR',
+      '2nd': '3K INR', 
+      '3rd': '1K INR'
+    },
+    themes: ['Social Impact'],
+    created_at: '2025-02-15T00:00:00+05:30'
+  };
+
   const fetchEvents = async () => {
     setIsLoading(true);
     try {
-      const params = filter !== 'all' ? { status: filter } : {};
-      const response = await eventsService.list(params);
-      setEvents(response.data);
+      // Only show Luma event
+      const allEvents = [lumaEvent];
+      
+      // Filter based on selected filter
+      const filteredEvents = filter === 'all' 
+        ? allEvents 
+        : allEvents.filter(event => event.status === filter);
+      
+      setEvents(filteredEvents);
     } catch (error) {
       if (error instanceof ApiError) {
         toast({
@@ -111,50 +139,79 @@ export default function Events() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {events.map((event) => (
-              <Card key={event.id} className="flex flex-col">
+              <Card key={event.id} className={`flex flex-col ${event.id === 'luma-code4cause-2024' ? 'ring-2 ring-blue-500 shadow-lg' : ''}`}>
                 {event.image_urls && event.image_urls.length > 0 && (
-                  <div className="h-48 overflow-hidden rounded-t-lg">
+                  <div className="h-32 overflow-hidden rounded-t-lg relative">
                     <img
                       src={event.image_urls[0]}
                       alt={event.title}
                       className="w-full h-full object-cover"
                     />
+                    {event.id === 'luma-code4cause-2024' && (
+                      <div className="absolute top-1 right-1 bg-blue-600 text-white px-1 py-0.5 rounded text-xs font-bold">
+                        LIVE
+                      </div>
+                    )}
                   </div>
                 )}
-                <CardHeader>
-                  <div className="flex justify-between items-start mb-2">
-                    <CardTitle className="text-xl">{event.title}</CardTitle>
+                <CardHeader className="pb-2">
+                  <div className="flex items-start gap-2 mb-1">
+                    <CardTitle className="text-sm font-semibold line-clamp-1">
+                      {event.title}
+                      {event.id === 'luma-code4cause-2024' && (
+                        <span className="ml-1 bg-blue-100 text-blue-800 text-xs px-1 py-0.5 rounded">
+                          Luma
+                        </span>
+                      )}
+                    </CardTitle>
                     {getStatusBadge(event.status)}
                   </div>
-                  <CardDescription className="line-clamp-2">
-                    {event.description}
-                  </CardDescription>
                 </CardHeader>
-                <CardContent className="flex-1">
-                  <div className="space-y-2 text-sm">
+                <CardContent className="flex-1 py-3">
+                  <div className="space-y-2 text-xs">
                     <div className="flex items-center text-muted-foreground">
-                      <Calendar className="mr-2 h-4 w-4" />
-                      {formatDate(event.start_date)} - {formatDate(event.end_date)}
+                      <Calendar className="mr-1 h-3 w-3" />
+                      {formatDate(event.start_date)}
                     </div>
                     <div className="flex items-center text-muted-foreground">
-                      <MapPin className="mr-2 h-4 w-4" />
-                      {event.location}
+                      <MapPin className="mr-1 h-3 w-3" />
+                      <span className="truncate">{event.location}</span>
                     </div>
-                    <div className="flex items-center text-muted-foreground">
-                      <Users className="mr-2 h-4 w-4" />
-                      {event.participant_count} / {event.max_participants} participants
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center text-muted-foreground">
+                        <Users className="mr-1 h-3 w-3" />
+                        {event.participant_count}/{event.max_participants}
+                      </div>
+                      {event.id === 'luma-code4cause-2024' && event.prizes && (
+                        <div className="flex items-center text-green-600 font-semibold">
+                          <span className="mr-1">🏆</span>
+                          {event.prizes['1st']}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </CardContent>
-                <CardFooter>
-                  <Link to={`/events/${event.id}`} className="w-full">
-                    <Button className="w-full">
-                      View Details
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
+                <CardFooter className="pt-2">
+                  {event.id === 'luma-code4cause-2024' ? (
+                    <a 
+                      href="https://luma.com/0hmim4ly" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="w-full"
+                    >
+                      <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs">
+                        Register
+                      </Button>
+                    </a>
+                  ) : (
+                    <Link to={`/events/${event.id}`} className="w-full">
+                      <Button size="sm" className="w-full text-xs">
+                        View
+                      </Button>
+                    </Link>
+                  )}
                 </CardFooter>
               </Card>
             ))}
