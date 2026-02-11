@@ -6,13 +6,13 @@ const HeroSection = () => {
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
-      {/* Background */}
-      <div className="absolute top-16 left-0 right-0 bottom-0">
+      {/* Background - Full screen including navbar area */}
+      <div className="absolute inset-0">
         <img
           src={heroBg}
-          alt="TechAssasin cyberpunk background"
+          alt="TechAssassin cyberpunk background"
           className="w-full h-full object-cover object-center"
           loading="eager"
         />
