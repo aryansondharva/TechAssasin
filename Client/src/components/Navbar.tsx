@@ -22,27 +22,40 @@ const Navbar = () => {
           Tech<span className="text-primary">Assasin</span>
         </Link>
 
-        {/* Desktop */}
-        <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            link.isRoute ? (
-              <Link
-                key={link.label}
-                to={link.href}
-                className="text-hero-muted hover:text-hero-foreground transition-colors text-sm font-medium"
-              >
-                {link.label}
-              </Link>
-            ) : (
-              <a
-                key={link.label}
-                href={link.href}
-                className="text-hero-muted hover:text-hero-foreground transition-colors text-sm font-medium"
-              >
-                {link.label}
-              </a>
-            )
-          ))}
+        {/* Desktop - Centered Navigation */}
+        <div className="hidden md:flex items-center justify-center flex-1">
+          <div className="flex items-center gap-8">
+            {navLinks.map((link) => (
+              link.isRoute ? (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  className="text-hero-muted hover:text-hero-foreground transition-colors text-sm font-medium"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="text-hero-muted hover:text-hero-foreground transition-colors text-sm font-medium"
+                >
+                  {link.label}
+                </a>
+              )
+            ))}
+          </div>
+        </div>
+
+        {/* Right side - Auth buttons */}
+        <div className="hidden md:flex items-center">
+          {/* Temporary dashboard link for testing */}
+          <Link
+            to="/dashboard"
+            className="text-hero-muted hover:text-hero-foreground transition-colors text-sm font-medium mr-3"
+          >
+            Dashboard (Test)
+          </Link>
           {isAuthenticated ? (
             <Link
               to="/dashboard"
@@ -80,28 +93,30 @@ const Navbar = () => {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden bg-hero border-t border-foreground/10 px-4 pb-4">
-          {navLinks.map((link) => (
-            link.isRoute ? (
-              <Link
-                key={link.label}
-                to={link.href}
-                onClick={() => setMobileOpen(false)}
-                className="block py-3 text-hero-muted hover:text-hero-foreground transition-colors text-sm font-medium"
-              >
-                {link.label}
-              </Link>
-            ) : (
-              <a
-                key={link.label}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className="block py-3 text-hero-muted hover:text-hero-foreground transition-colors text-sm font-medium"
-              >
-                {link.label}
-              </a>
-            )
-          ))}
+        <div className="md:hidden bg-hero/80 backdrop-blur-md px-4 pb-4">
+          <div className="flex flex-col items-center space-y-4">
+            {navLinks.map((link) => (
+              link.isRoute ? (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="block py-3 text-hero-muted hover:text-hero-foreground transition-colors text-sm font-medium text-center"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="block py-3 text-hero-muted hover:text-hero-foreground transition-colors text-sm font-medium text-center"
+                >
+                  {link.label}
+                </a>
+              )
+            ))}
+          </div>
           {isAuthenticated ? (
             <Link
               to="/dashboard"
