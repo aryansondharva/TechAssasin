@@ -4,7 +4,12 @@
 # Markdown files (ignore all .md files except README.md)
 *.md
 !README.md
-.INTEGRATION_SUMMARY.md
+
+# Specific markdown files to ignore
+FRONTEND_BACKEND_INTEGRATION.md
+INTEGRATION_SUMMARY.md
+QUICK_START.md
+AUTH_GUIDE.md
 
 # Dependencies
 node_modules/
