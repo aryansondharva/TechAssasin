@@ -12,6 +12,16 @@ import type {
   ResetPasswordRequest,
 } from '@/types/api';
 
+// OTP related types
+interface ForgotPasswordRequest {
+  email: string;
+}
+
+interface VerifyOTPRequest {
+  email: string;
+  otp: string;
+}
+
 export const authService = {
   /**
    * Sign up a new user
@@ -52,10 +62,17 @@ export const authService = {
   },
 
   /**
-   * Request password reset email
+   * Request password reset OTP
    */
-  resetPassword: async (data: ResetPasswordRequest): Promise<void> => {
-    await api.post('/auth/reset-password', data);
+  forgotPassword: async (data: ForgotPasswordRequest): Promise<void> => {
+    await api.post('/auth/forgot-password', data);
+  },
+
+  /**
+   * Verify OTP for password reset
+   */
+  verifyOTP: async (data: VerifyOTPRequest): Promise<void> => {
+    await api.post('/auth/verify-otp', data);
   },
 
   /**
