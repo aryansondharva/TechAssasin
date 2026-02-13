@@ -1,50 +1,116 @@
 # Kiro files
 .kiro/
 
-# Markdown files (ignore all .md files except README.md)
+# =============================================================================
+# DOCUMENTATION FILES (ignore all .md files except README.md)
+# =============================================================================
 *.md
 !README.md
 
-# Specific markdown files to ignore
-FRONTEND_BACKEND_INTEGRATION.md
-INTEGRATION_SUMMARY.md
-QUICK_START.md
-AUTH_GUIDE.md
+# Allow specific important documentation if needed
+# !CONTRIBUTING.md
+# !CHANGELOG.md
 
-# Dependencies
-node_modules/
+# =============================================================================
+# SQL FILES (database setup and migration files)
+# =============================================================================
+*.sql
+!backend/supabase/migrations/*.sql
 
-# Environment variables
+# Specific SQL files to ignore
+COMPLETE_DATABASE_SETUP.sql
+FIX_MISSING_COLUMNS.sql
+VERIFY_DATABASE.sql
+
+# =============================================================================
+# ENVIRONMENT FILES
+# =============================================================================
 .env
 .env.local
 .env*.local
+backend/.env
+backend/.env.local
+Client/.env
+Client/.env.local
 
-# Build outputs
+# =============================================================================
+# DEPENDENCIES
+# =============================================================================
+node_modules/
+backend/node_modules/
+Client/node_modules/
+
+# =============================================================================
+# BUILD OUTPUTS
+# =============================================================================
 dist/
 build/
 .next/
 out/
+backend/.next/
+backend/out/
+Client/dist/
+Client/build/
 
-# Logs
+# =============================================================================
+# LOGS
+# =============================================================================
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# OS files
+# =============================================================================
+# OS FILES
+# =============================================================================
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+desktop.ini
 
-# IDE files
+# =============================================================================
+# IDE FILES
+# =============================================================================
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
 
-# Test coverage
+# =============================================================================
+# TEST COVERAGE
+# =============================================================================
 coverage/
+*.lcov
+.nyc_output/
 
-# Temporary files
+# =============================================================================
+# TEMPORARY FILES
+# =============================================================================
 *.tmp
+*.temp
 .cache/
+.parcel-cache/
+
+# =============================================================================
+# TYPESCRIPT
+# =============================================================================
+*.tsbuildinfo
+
+# =============================================================================
+# MISC
+# =============================================================================
+.vercel
+.turbo
+.eslintcache

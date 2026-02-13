@@ -1,336 +1,310 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { profileService, authService } from '@/services';
+import { ApiError } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
-import { Loader2, LogOut, User, Mail, Phone, MapPin, GraduationCap, Save, X, Camera, Upload } from 'lucide-react';
+import { Loader2, ArrowLeft, Save } from 'lucide-react';
+import type { Profile } from '@/types/api';
+import Navbar from '@/components/Navbar';
 
-const EditProfile = () => {
+export default function EditProfile() {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  
   const [formData, setFormData] = useState({
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    phone: '+1 234 567 8900',
-    address: '123 Tech Street, Silicon Valley, CA 94000',
-    education: 'Bachelor of Computer Science',
-    university: 'Tech University',
-    graduationYear: '2024',
-    aadhaarNumber: '2341-5678-9012',
-    skills: ['JavaScript', 'React', 'TypeScript', 'Python']
+    username: '',
+    full_name: '',
+    bio: '',
+    skills: [] as string[],
+    github_url: '',
+    linkedin_url: '',
+    portfolio_url: '',
   });
 
-  const [newSkill, setNewSkill] = useState('');
+  const [skillInput, setSkillInput] = useState('');
 
-  const handleSave = async () => {
+  useEffect(() => {
+    if (!authService.isAuthenticated()) {
+      navigate('/signin');
+      return;
+    }
+
+    fetchProfile();
+  }, [navigate]);
+
+  const fetchProfile = async () => {
     setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      toast({
-        title: 'Profile Updated',
-        description: 'Your profile has been successfully updated.',
+    try {
+      const data = await profileService.getMyProfile();
+      setProfile(data);
+      setFormData({
+        username: data.username || '',
+        full_name: data.full_name || '',
+        bio: data.bio || '',
+        skills: data.skills || [],
+        github_url: data.github_url || '',
+        linkedin_url: data.linkedin_url || '',
+        portfolio_url: data.portfolio_url || '',
       });
+    } catch (error) {
+      if (error instanceof ApiError) {
+        if (error.status === 401) {
+          authService.signOut();
+          navigate('/signin');
+        } else {
+          toast({
+            title: 'Error',
+            description: 'Failed to load profile',
+            variant: 'destructive',
+          });
+        }
+      }
+    } finally {
       setIsLoading(false);
-      navigate('/dashboard');
-    }, 1000);
-  };
-
-  const handleCancel = () => {
-    navigate('/dashboard');
-  };
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const handleAddSkill = () => {
-    if (newSkill.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        skills: [...prev.skills, newSkill.trim()]
-      }));
-      setNewSkill('');
     }
   };
 
-  const handleRemoveSkill = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      skills: prev.skills.filter((_, i) => i !== index)
-    }));
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.username.trim()) {
+      toast({
+        title: 'Validation Error',
+        description: 'Username is required',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      await profileService.update(formData);
+      
+      toast({
+        title: 'Profile Updated! 🎉',
+        description: 'Your profile has been successfully updated',
+      });
+      
+      navigate('/dashboard');
+    } catch (error) {
+      if (error instanceof ApiError) {
+        toast({
+          title: 'Update Failed',
+          description: error.message,
+          variant: 'destructive',
+        });
+      }
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleImageUpload = () => {
-    // Handle image upload
-    toast({
-      title: 'Image Upload',
-      description: 'Image upload functionality would be implemented here',
+  const handleAddSkill = () => {
+    if (skillInput.trim() && !formData.skills.includes(skillInput.trim())) {
+      setFormData({
+        ...formData,
+        skills: [...formData.skills, skillInput.trim()],
+      });
+      setSkillInput('');
+    }
+  };
+
+  const handleRemoveSkill = (skill: string) => {
+    setFormData({
+      ...formData,
+      skills: formData.skills.filter(s => s !== skill),
     });
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <Link to="/dashboard" className="flex items-center text-gray-600 hover:text-gray-900">
-                <LogOut className="h-4 w-4 mr-2" />
-                Back to Dashboard
-              </Link>
-              <h1 className="text-xl font-bold text-gray-900">Edit Profile</h1>
-            </div>
-          </div>
-        </div>
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
+    );
+  }
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            {/* Profile Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6">
-              <div className="flex items-center">
-                <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center">
-                  <User className="w-12 h-12 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold">John Doe</h2>
-                  <p className="text-blue-100">john.doe@example.com</p>
-                </div>
-              </div>
-            </div>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50">
+      <Navbar />
+      
+      <div className="container mx-auto px-4 py-24">
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/dashboard')}
+          className="mb-6"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Dashboard
+        </Button>
 
-            {/* Form Content */}
-            <div className="p-8">
-              <div className="grid gap-8 lg:grid-cols-2">
-                {/* Left Column - Profile Image */}
-                <div>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Profile Picture</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                      <div className="flex flex-col items-center space-y-4">
-                        <div className="w-32 h-32 bg-gray-100 rounded-full flex items-center justify-center border-2 border-dashed border-gray-300">
-                          <User className="w-16 h-16 text-gray-400" />
-                        </div>
-                        <Button 
-                          variant="outline" 
-                          className="w-full"
-                          onClick={handleImageUpload}
-                        >
-                          <Upload className="h-4 w-4 mr-2" />
-                          Upload Photo
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Right Column - Profile Information */}
-                <div>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Personal Information</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-6 space-y-6">
-                      <div className="grid gap-6 md:grid-cols-2">
-                        <div>
-                          <Label htmlFor="name">Full Name</Label>
-                          <Input
-                            id="name"
-                            type="text"
-                            value={formData.name}
-                            onChange={(e) => handleInputChange('name', e.target.value)}
-                            placeholder="Enter your full name"
-                            className="w-full"
-                          />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="email">Email Address</Label>
-                          <Input
-                            id="email"
-                            type="email"
-                            value={formData.email}
-                            onChange={(e) => handleInputChange('email', e.target.value)}
-                            placeholder="Enter your email"
-                            className="w-full"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid gap-6 md:grid-cols-2">
-                        <div>
-                          <Label htmlFor="phone">Phone Number</Label>
-                          <Input
-                            id="phone"
-                            type="tel"
-                            value={formData.phone}
-                            onChange={(e) => handleInputChange('phone', e.target.value)}
-                            placeholder="Enter your phone number"
-                            className="w-full"
-                          />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="aadhaar">Aadhaar Number</Label>
-                          <Input
-                            id="aadhaar"
-                            type="text"
-                            value={formData.aadhaarNumber}
-                            onChange={(e) => handleInputChange('aadhaarNumber', e.target.value)}
-                            placeholder="XXXX-XXXX-XXXX"
-                            className="w-full"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <Label htmlFor="address">Address</Label>
-                        <Input
-                          id="address"
-                          type="text"
-                          value={formData.address}
-                          onChange={(e) => handleInputChange('address', e.target.value)}
-                          placeholder="Enter your address"
-                          className="w-full"
-                        />
-                      </div>
-
-                      <div className="grid gap-6 md:grid-cols-2">
-                        <div>
-                          <Label htmlFor="education">Education</Label>
-                          <Input
-                            id="education"
-                            type="text"
-                            value={formData.education}
-                            onChange={(e) => handleInputChange('education', e.target.value)}
-                            placeholder="Enter your education"
-                            className="w-full"
-                          />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="university">University</Label>
-                          <Input
-                            id="university"
-                            type="text"
-                            value={formData.university}
-                            onChange={(e) => handleInputChange('university', e.target.value)}
-                            placeholder="Enter your university"
-                            className="w-full"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <Label htmlFor="graduationYear">Graduation Year</Label>
-                        <Input
-                          id="graduationYear"
-                          type="text"
-                          value={formData.graduationYear}
-                          onChange={(e) => handleInputChange('graduationYear', e.target.value)}
-                          placeholder="Enter graduation year"
-                          className="w-full"
-                        />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
+        <Card className="max-w-2xl mx-auto">
+          <CardHeader>
+            <CardTitle className="text-2xl">Edit Profile</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Username */}
+              <div className="space-y-2">
+                <Label htmlFor="username">Username *</Label>
+                <Input
+                  id="username"
+                  placeholder="Enter your username"
+                  value={formData.username}
+                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                  disabled={isSaving}
+                  required
+                />
               </div>
 
-              {/* Skills Section */}
-              <div className="mt-8">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Skills</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6">
-                    <div className="space-y-3">
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {formData.skills.map((skill, index) => (
-                          <span key={index} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm flex items-center">
-                            {skill}
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveSkill(index)}
-                              className="ml-2 text-red-500 hover:text-red-700"
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </span>
-                        ))}
-                      </div>
-                      <div className="flex gap-2">
-                        <Input
-                          type="text"
-                          value={newSkill}
-                          onChange={(e) => setNewSkill(e.target.value)}
-                          placeholder="Add a skill and press Enter"
-                          className="flex-1"
-                          onKeyPress={(e) => {
-                            if (e.key === 'Enter' && newSkill.trim()) {
-                              handleAddSkill();
-                            }
-                          }}
-                        />
-                        <Button 
+              {/* Full Name */}
+              <div className="space-y-2">
+                <Label htmlFor="full_name">Full Name</Label>
+                <Input
+                  id="full_name"
+                  placeholder="Enter your full name"
+                  value={formData.full_name}
+                  onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                  disabled={isSaving}
+                />
+              </div>
+
+              {/* Bio */}
+              <div className="space-y-2">
+                <Label htmlFor="bio">Bio</Label>
+                <Textarea
+                  id="bio"
+                  placeholder="Tell us about yourself"
+                  value={formData.bio}
+                  onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                  disabled={isSaving}
+                  rows={4}
+                />
+              </div>
+
+              {/* Skills */}
+              <div className="space-y-2">
+                <Label htmlFor="skills">Skills</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="skills"
+                    placeholder="Add a skill (e.g., JavaScript)"
+                    value={skillInput}
+                    onChange={(e) => setSkillInput(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddSkill();
+                      }
+                    }}
+                    disabled={isSaving}
+                  />
+                  <Button
+                    type="button"
+                    onClick={handleAddSkill}
+                    disabled={isSaving || !skillInput.trim()}
+                  >
+                    Add
+                  </Button>
+                </div>
+                {formData.skills.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {formData.skills.map((skill) => (
+                      <div
+                        key={skill}
+                        className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm flex items-center gap-2"
+                      >
+                        {skill}
+                        <button
                           type="button"
-                          onClick={handleAddSkill}
-                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                          onClick={() => handleRemoveSkill(skill)}
+                          className="hover:text-destructive"
+                          disabled={isSaving}
                         >
-                          Add
-                        </Button>
+                          ×
+                        </button>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    ))}
+                  </div>
+                )}
               </div>
-            </div>
 
-            {/* Action Buttons */}
-            <div className="p-6 border-t border-gray-200">
-              <div className="flex justify-end gap-4">
-                <Button 
-                  variant="outline" 
-                  onClick={handleCancel}
-                  disabled={isLoading}
+              {/* GitHub URL */}
+              <div className="space-y-2">
+                <Label htmlFor="github_url">GitHub URL</Label>
+                <Input
+                  id="github_url"
+                  type="url"
+                  placeholder="https://github.com/username"
+                  value={formData.github_url}
+                  onChange={(e) => setFormData({ ...formData, github_url: e.target.value })}
+                  disabled={isSaving}
+                />
+              </div>
+
+              {/* LinkedIn URL */}
+              <div className="space-y-2">
+                <Label htmlFor="linkedin_url">LinkedIn URL</Label>
+                <Input
+                  id="linkedin_url"
+                  type="url"
+                  placeholder="https://linkedin.com/in/username"
+                  value={formData.linkedin_url}
+                  onChange={(e) => setFormData({ ...formData, linkedin_url: e.target.value })}
+                  disabled={isSaving}
+                />
+              </div>
+
+              {/* Portfolio URL */}
+              <div className="space-y-2">
+                <Label htmlFor="portfolio_url">Portfolio URL</Label>
+                <Input
+                  id="portfolio_url"
+                  type="url"
+                  placeholder="https://yourportfolio.com"
+                  value={formData.portfolio_url}
+                  onChange={(e) => setFormData({ ...formData, portfolio_url: e.target.value })}
+                  disabled={isSaving}
+                />
+              </div>
+
+              {/* Submit Buttons */}
+              <div className="flex gap-3 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate('/dashboard')}
+                  disabled={isSaving}
+                  className="flex-1"
                 >
                   Cancel
                 </Button>
-                <Button 
-                  onClick={handleSave}
-                  disabled={isLoading}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  {isLoading ? (
+                <Button type="submit" disabled={isSaving} className="flex-1">
+                  {isSaving ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Saving...
                     </>
                   ) : (
                     <>
-                      <Save className="h-4 w-4 mr-2" />
-                      Save Changes
+                      <Save className="mr-2 h-4 w-4" />
+                      Save Profile
                     </>
                   )}
                 </Button>
               </div>
-            </div>
-          </div>
-        </div>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
-};
-
-export default EditProfile;
+}
