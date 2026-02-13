@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![TechAssassin Logo](https://via.placeholder.com/150x150?text=TechAssassin)
+<img src="./Client/public/favicon.ico" alt="TechAssassin Logo" width="120" height="120" />
 
 **A comprehensive, full-stack hackathon management platform built with modern web technologies**
 
