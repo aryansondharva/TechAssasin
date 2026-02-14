@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { requireAuth } from '@/lib/middleware/auth'
+import { requireAuth, requireAuthWithClient, requireAdmin } from '@/lib/middleware/auth'
 import { profileUpdateSchema } from '@/lib/validations/profile'
 import { handleApiError, NotFoundError, ConflictError, AuthorizationError } from '@/lib/errors'
 import { deleteAvatar } from '@/lib/storage/cleanup'
@@ -9,15 +8,13 @@ import type { Profile } from '@/types/database'
 /**
  * GET /api/profile
  * Get current user's profile with all fields
+ * Returns 404 if profile doesn't exist yet
  * Requirements: 3.5
  */
 export async function GET() {
   try {
-    // Verify authentication
-    const user = await requireAuth()
-    
-    // Get Supabase client
-    const supabase = await createClient()
+    // Verify authentication and get client
+    const { user, supabase } = await requireAuthWithClient()
     
     // Fetch user's profile
     const { data: profile, error } = await supabase
@@ -27,11 +24,15 @@ export async function GET() {
       .single()
     
     if (error) {
+      // Check if profile doesn't exist
+      if (error.code === 'PGRST116') {
+        throw new NotFoundError('Profile not found. Please create your profile.')
+      }
       throw new Error(`Failed to fetch profile: ${error.message}`)
     }
     
     if (!profile) {
-      throw new NotFoundError('Profile not found')
+      throw new NotFoundError('Profile not found. Please create your profile.')
     }
     
     return NextResponse.json(profile as Profile)
@@ -42,7 +43,7 @@ export async function GET() {
 
 /**
  * PATCH /api/profile
- * Update current user's profile
+ * Update current user's profile (or create if doesn't exist)
  * Validates input with profileUpdateSchema
  * Checks username uniqueness
  * Prevents is_admin modification
@@ -50,8 +51,8 @@ export async function GET() {
  */
 export async function PATCH(request: Request) {
   try {
-    // Verify authentication
-    const user = await requireAuth()
+    // Verify authentication and get client
+    const { user, supabase } = await requireAuthWithClient()
     
     // Parse and validate request body
     const body = await request.json()
@@ -63,9 +64,6 @@ export async function PATCH(request: Request) {
     if ('is_admin' in body) {
       throw new AuthorizationError('Cannot modify admin status')
     }
-    
-    // Get Supabase client
-    const supabase = await createClient()
     
     // If username is being updated, check uniqueness
     if (validatedData.username) {
@@ -81,16 +79,44 @@ export async function PATCH(request: Request) {
       }
     }
     
-    // Update profile
-    const { data: updatedProfile, error } = await supabase
+    // Check if profile exists
+    const { data: existingUserProfile } = await supabase
       .from('profiles')
-      .update(validatedData)
+      .select('id')
       .eq('id', user.id)
-      .select()
       .single()
     
+    let updatedProfile
+    let error
+    
+    if (existingUserProfile) {
+      // Update existing profile
+      const result = await supabase
+        .from('profiles')
+        .update(validatedData)
+        .eq('id', user.id)
+        .select()
+        .single()
+      
+      updatedProfile = result.data
+      error = result.error
+    } else {
+      // Create new profile
+      const result = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          ...validatedData
+        })
+        .select()
+        .single()
+      
+      updatedProfile = result.data
+      error = result.error
+    }
+    
     if (error) {
-      throw new Error(`Failed to update profile: ${error.message}`)
+      throw new Error(`Failed to save profile: ${error.message}`)
     }
     
     return NextResponse.json(updatedProfile as Profile)
@@ -107,11 +133,8 @@ export async function PATCH(request: Request) {
  */
 export async function DELETE() {
   try {
-    // Verify authentication
-    const user = await requireAuth()
-    
-    // Get Supabase client
-    const supabase = await createClient()
+    // Verify authentication and get client
+    const { user, supabase } = await requireAuthWithClient()
     
     // Delete profile from database
     const { error } = await supabase
