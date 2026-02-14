@@ -619,17 +619,6 @@ copies or substantial portions of the Software.
 
 ---
 
-## 📞 Support
-
-Need help? Have questions?
-
-- 📧 Email: support@techassassin.com
-- 💬 Discord: [Join our community](https://discord.gg/techassassin)
-- 🐦 Twitter: [@techassassin](https://twitter.com/techassassin)
-- 📖 Documentation: [docs.techassassin.com](https://docs.techassassin.com)
-
----
-
 ## 🗺 Roadmap
 
 ### Version 1.0 (Current)
