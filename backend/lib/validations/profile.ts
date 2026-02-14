@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 /**
  * Profile update validation schema
- * Validates username, full_name, github_url, and skills
+ * Validates username, full_name, bio, github_url, linkedin_url, portfolio_url, and skills
  * Requirements: 3.1, 15.1, 15.2
  */
 export const profileUpdateSchema = z.object({
@@ -15,9 +15,24 @@ export const profileUpdateSchema = z.object({
     .string()
     .min(1, 'Full name is required')
     .max(100, 'Full name must not exceed 100 characters'),
+  bio: z
+    .string()
+    .max(500, 'Bio must not exceed 500 characters')
+    .optional()
+    .or(z.literal('')),
   github_url: z
     .string()
     .url('GitHub URL must be a valid URL')
+    .optional()
+    .or(z.literal('')),
+  linkedin_url: z
+    .string()
+    .url('LinkedIn URL must be a valid URL')
+    .optional()
+    .or(z.literal('')),
+  portfolio_url: z
+    .string()
+    .url('Portfolio URL must be a valid URL')
     .optional()
     .or(z.literal('')),
   skills: z

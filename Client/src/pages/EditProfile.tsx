@@ -56,12 +56,20 @@ export default function EditProfile() {
     } catch (error) {
       if (error instanceof ApiError) {
         if (error.status === 401) {
+          // Only sign out if authentication is invalid
           authService.signOut();
           navigate('/signin');
+        } else if (error.status === 404) {
+          // Profile doesn't exist yet - allow user to create it
+          toast({
+            title: 'Create Your Profile',
+            description: 'Fill in the form below to create your profile',
+          });
         } else {
+          // Other errors - show error but don't sign out
           toast({
             title: 'Error',
-            description: 'Failed to load profile',
+            description: 'Failed to load profile. You can still create one.',
             variant: 'destructive',
           });
         }

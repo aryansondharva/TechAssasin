@@ -13,8 +13,11 @@ export interface Profile {
   id: string;
   username: string;
   full_name: string | null;
+  bio: string | null;
   avatar_url: string | null;
   github_url: string | null;
+  linkedin_url: string | null;
+  portfolio_url: string | null;
   skills: string[];
   is_admin: boolean;
   created_at: string;
@@ -158,7 +161,10 @@ export interface ResetPasswordRequest {
 export interface ProfileUpdateRequest {
   username?: string;
   full_name?: string;
+  bio?: string;
   github_url?: string;
+  linkedin_url?: string;
+  portfolio_url?: string;
   skills?: string[];
 }
 

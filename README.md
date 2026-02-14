@@ -4,7 +4,8 @@
 
 <img src="./Client/public/favicon.ico" alt="TechAssassin Logo" width="120" height="120" />
 
-**A comprehensive, full-stack hackathon management platform built with modern web technologies**
+<h3>🚀 A comprehensive, full-stack hackathon management platform</h3>
+<p><em>Empowering organizers and participants to create amazing hackathon experiences</em></p>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
